@@ -1,0 +1,41 @@
+# Definição do Job - Volume to Delta Table (Projeto C)
+resources:
+  jobs:
+    volume_to_delta:
+      name: "[${bundle.target}] Volume to Delta C - ${var.table_name}"
+      description: "Job que lê dados de um volume e escreve em uma tabela Delta (Projeto C)"
+      
+      # Configuração do cluster
+      job_clusters:
+        - job_cluster_key: main_cluster
+          new_cluster:
+            spark_version: "14.3.x-scala2.12"
+            node_type_id: "m5d.large"
+            num_workers: 1
+            spark_conf:
+              spark.databricks.delta.preview.enabled: "true"
+            spark_env_vars:
+              CATALOG: ${var.catalog}
+              SCHEMA: ${var.schema}
+              VOLUME_NAME: ${var.volume_name}
+              TABLE_NAME: ${var.table_name}
+              FILE_FORMAT: ${var.file_format}
+
+      # Tasks do job
+      tasks:
+        - task_key: read_volume_write_delta
+          job_cluster_key: main_cluster
+          python_wheel_task:
+            package_name: volume_to_delta
+            entry_point: main
+          libraries:
+            - whl: ../dist/*.whl
+
+      # Tags para organização
+      tags:
+        project: "solar"
+        bundle: "volume_to_delta_c"
+        type: "etl"
+        source: "volume"
+        target: "delta"
+
