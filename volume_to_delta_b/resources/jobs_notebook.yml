@@ -1,0 +1,30 @@
+# Definição alternativa do Job usando Notebook (Projeto B)
+resources:
+  jobs:
+    volume_to_delta_notebook:
+      name: "[${bundle.target}] Volume to Delta Notebook B - ${var.table_name}"
+      description: "Job que lê dados de um volume e escreve em uma tabela Delta (versão notebook - Projeto B)"
+      
+      # Tasks do job usando notebook
+      tasks:
+        - task_key: read_volume_write_delta
+          new_cluster:
+            spark_version: "14.3.x-scala2.12"
+            node_type_id: "m5d.large"
+            num_workers: 1
+          notebook_task:
+            notebook_path: ../src/notebooks/volume_to_delta_notebook.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              volume_name: ${var.volume_name}
+              table_name: ${var.table_name}
+              file_format: ${var.file_format}
+
+      # Tags para organização
+      tags:
+        project: "solar"
+        bundle: "volume_to_delta_b"
+        type: "etl"
+        execution: "notebook"
+

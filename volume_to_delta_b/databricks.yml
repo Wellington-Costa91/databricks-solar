@@ -1,0 +1,57 @@
+# Databricks Asset Bundle - Volume to Delta Table (Projeto B)
+# Este bundle define um job que lê dados de um volume e escreve em uma tabela Delta
+
+bundle:
+  name: volume_to_delta_b
+
+# Variáveis configuráveis do projeto
+variables:
+  catalog:
+    description: "Catálogo Unity Catalog"
+    default: "main"
+  schema:
+    description: "Schema onde a tabela será criada"
+    default: "default"
+  volume_name:
+    description: "Nome do volume de origem"
+    default: "raw_data_b"
+  table_name:
+    description: "Nome da tabela Delta de destino"
+    default: "processed_data_b"
+  file_format:
+    description: "Formato dos arquivos no volume (csv, json, parquet)"
+    default: "csv"
+
+# Inclusão dos recursos (jobs, pipelines, etc.)
+include:
+  - resources/*.yml
+
+# Configuração dos targets (ambientes)
+# NOTA: Configure o host via variável de ambiente DATABRICKS_HOST
+# ou via perfil do CLI (~/.databrickscfg)
+targets:
+  # Ambiente de desenvolvimento
+  dev:
+    mode: development
+    default: true
+    # workspace.host será lido de DATABRICKS_HOST ou do perfil do CLI
+    variables:
+      catalog: dev_catalog
+      schema: dev_schema
+
+  # Ambiente de staging
+  staging:
+    mode: development
+    variables:
+      catalog: staging_catalog
+      schema: staging_schema
+
+  # Ambiente de produção
+  prod:
+    mode: production
+    variables:
+      catalog: prod_catalog
+      schema: prod_schema
+    # Descomente e configure o service principal para produção:
+    # run_as:
+    #   service_principal_name: seu-service-principal
